@@ -3,4 +3,4 @@ boto3
 pandas
 numpy
 sagemaker
-scikit-lear
+scikit-learn
