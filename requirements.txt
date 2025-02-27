@@ -4,3 +4,4 @@ pandas
 numpy
 sagemaker
 scikit-learn
+setuptools
