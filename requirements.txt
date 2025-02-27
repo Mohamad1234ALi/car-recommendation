@@ -5,3 +5,4 @@ numpy
 sagemaker
 scikit-learn
 setuptools
+protobuf==3.20.*
