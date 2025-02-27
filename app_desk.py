@@ -10,11 +10,9 @@ from sagemaker.session import Session
 from io import StringIO
 import os
 
-
-# Fetch credentials from environment variables
-aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
-aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-aws_region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")  # Default to us-east-1
+aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
+aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
+aws_region = st.secrets["AWS_DEFAULT_REGION"]
 
 def read_csv_from_s3(bucket_name, file_key):
     """Read a CSV file from S3 into a Pandas DataFrame."""
@@ -37,7 +35,7 @@ boto3.setup_default_session(
 )
 
 # Create a SageMaker Predictor
-predictor = Predictor(endpoint_name=ENDPOINT_NAME, serializer=CSVSerializer(),sagemaker_session=Session(boto3.Session(region_name="us-east-1")))
+predictor = Predictor(endpoint_name=ENDPOINT_NAME, serializer=CSVSerializer(),sagemaker_session=Session(boto3.Session(region_name=aws_region)))
 
 # Load encoders (same as training)
 category_encoder = LabelEncoder()
