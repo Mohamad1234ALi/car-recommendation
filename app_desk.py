@@ -8,6 +8,7 @@ from sagemaker.serializers import CSVSerializer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sagemaker.session import Session
 from io import StringIO
+import os
 
 
 # Fetch credentials from environment variables
