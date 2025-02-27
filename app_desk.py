@@ -9,12 +9,18 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sagemaker.session import Session
 from io import StringIO
 
+
+# Fetch credentials from environment variables
+aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+aws_region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")  # Default to us-east-1
+
 def read_csv_from_s3(bucket_name, file_key):
     """Read a CSV file from S3 into a Pandas DataFrame."""
     boto3.setup_default_session(
-    aws_access_key_id="AKIA6CN7Q7IF3RFLP37I",
-    aws_secret_access_key="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",
-    region_name="us-east-1")
+    aws_access_key_id=aws_access_key,
+    aws_secret_access_key=aws_secret_key,
+    region_name=aws_region)
     s3 = boto3.client("s3")
     response = s3.get_object(Bucket=bucket_name, Key=file_key)
     csv_content = response["Body"].read().decode("utf-8")
@@ -24,9 +30,9 @@ def read_csv_from_s3(bucket_name, file_key):
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 # Manually set AWS credentials
 boto3.setup_default_session(
-    aws_access_key_id="AKIA6CN7Q7IF3RFLP37I",
-    aws_secret_access_key="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",
-    region_name="us-east-1"
+    aws_access_key_id=aws_access_key,
+    aws_secret_access_key=aws_secret_key,
+    region_name=aws_region
 )
 
 # Create a SageMaker Predictor
