@@ -53,8 +53,7 @@ scaler.scale_ = np.array([5000, 20000, 50, 5])
 
 # Streamlit UI
 st.title("Car Recommendation System")
-st.write("AWS_ACCESS_KEY_ID:", aws_access_key)
-st.write("AWS_SECRET_ACCESS_KEY:", aws_secret_key)
+
 # Input fields
 category = st.selectbox("Category", ["SUV", "Sedan", "Convertible"])
 gearbox = st.selectbox("Gearbox", ["Manual", "Automatic"])
