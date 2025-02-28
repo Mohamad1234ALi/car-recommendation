@@ -25,6 +25,10 @@ def read_csv_from_s3(bucket_name, file_key):
     csv_content = response["Body"].read().decode("utf-8")
     return pd.read_csv(StringIO(csv_content))
 
+def read_csv_from_url(url):
+    """Read a CSV file from a public S3 URL into a Pandas DataFrame."""
+    return pd.read_csv(url)
+    
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 # Manually set AWS credentials
@@ -111,7 +115,8 @@ if st.button("Get Recommendation"):
     st.success(f"Recommended Cluster: {predicted_cluster}")
 
     try:
-        ads_df = read_csv_from_s3(bucket_name, file_key)
+        url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/WithClusterTest/predictions_with_clusters.csv"
+        ads_df = read_csv_from_url(url)
 
         # Ensure dataset has a "cluster" column
         if "cluster" not in ads_df.columns:
