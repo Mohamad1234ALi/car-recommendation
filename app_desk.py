@@ -46,9 +46,9 @@ category_encoder = LabelEncoder()
 gearbox_encoder = LabelEncoder()
 fueltype_encoder = LabelEncoder()
 
-category_encoder.fit(["SUV", "Sedan", "Convertible"])
+category_encoder.fit(["OffRoad", "Van", "Limousine", "Estate Car", "Small car", "Sport Car"])
 gearbox_encoder.fit(["Manual", "Automatic"])
-fueltype_encoder.fit(["Petrol", "Diesel", "Electric"])
+fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 
 # StandardScaler (Use the same mean & scale as in training)
 scaler = StandardScaler()
@@ -59,9 +59,9 @@ scaler.scale_ = np.array([5000, 20000, 50, 5])
 st.title("Car Recommendation System")
 
 # Input fields
-category = st.selectbox("Category", ["SUV", "Sedan", "Convertible"])
+category = st.selectbox("Category", ["OffRoad", "Van", "Limousine", "Estate Car", "Small car", "Sport Car"])
 gearbox = st.selectbox("Gearbox", ["Manual", "Automatic"])
-fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "Electric"])
+fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "Electric", "Hybrid"])
 price = st.number_input("Price ($)", min_value=1000, max_value=200000, step=500)
 mileage = st.number_input("Mileage (km)", min_value=0, max_value=300000, step=5000)
 performance = st.number_input("Performance (HP)", min_value=50, max_value=1000, step=10)
