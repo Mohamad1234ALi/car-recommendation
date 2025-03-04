@@ -30,17 +30,15 @@ def read_csv_from_url(url):
     """Read a CSV file from a public S3 URL into a Pandas DataFrame."""
     return pd.read_csv(url)
 
-def load_preprocessor():
-    """Load ColumnTransformer (scaler + encoder) from S3."""
-    s3 = boto3.client("s3")
-    bucket_name = "car-recommendation-raed"
-    s3_key = "model/preprocessor.pkl"
+url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/model/preprocessor.pkl"
 
-    obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
-    preprocessor = joblib.load(obj["Body"])
-    print("✅ Preprocessor loaded successfully from S3")
+def load_preprocessor_from_url(url):
+    """Download and load the preprocessor from a public S3 URL."""
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an error for bad responses
+    preprocessor = joblib.load(io.BytesIO(response.content))
+    print("✅ Preprocessor loaded successfully from URL")
     return preprocessor
-
 
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
@@ -66,7 +64,7 @@ fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 # StandardScaler (Use the same mean & scale as in training)
 # scaler = StandardScaler()
 # Load preprocessor
-preprocessor = load_preprocessor()
+preprocessor = load_preprocessor_from_url(url)
 # Streamlit UI
 st.title("Car Recommendation System")
 
