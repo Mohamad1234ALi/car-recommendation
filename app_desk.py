@@ -9,6 +9,8 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sagemaker.session import Session
 from io import StringIO
 import requests
+import joblib
+from io import BytesIO
 
 aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
 aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
@@ -19,6 +21,18 @@ aws_region = st.secrets["AWS_DEFAULT_REGION"]
 def read_csv_from_url(url):
     return pd.read_csv(url)
 
+
+@st.cache_resource
+def load_scaler(url: str):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        scaler = joblib.load(BytesIO(response.content))
+        return scaler
+    except Exception as e:
+        st.error(f"Failed to load scaler: {e}")
+        return None
+    
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 
@@ -43,7 +57,8 @@ gearbox_encoder.fit(["Manual", "Automatic"])
 fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 
 # Initialize StandardScaler
-scaler = StandardScaler()
+scaler_url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/model/scaler.pkl"
+scaler = load_scaler(scaler_url)
 
 # Streamlit UI
 st.title("Car Recommendation System")
@@ -62,7 +77,7 @@ if st.button("Get Recommendation"):
     
     # Fit scaler on dataset
     numerical_features = ["Price", "Mileage", "Performance", "FirstReg"]
-    scaler.fit(ads_df[numerical_features])
+   
     
     new_ad = pd.DataFrame({
         "Category": [category],
