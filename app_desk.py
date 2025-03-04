@@ -101,10 +101,13 @@ if st.button("Get Recommendation"):
 
     # Standardize numerical values
     numerical_features = ["Price", "Mileage", "Performance", "FirstReg"]
-    new_ad[numerical_features] = preprocessor.transform(new_ad[numerical_features])
+    categorical_features = ["Category", "Gearbox", "FuelTyp"]
+    features = categorical_features + numerical_features
+    new_ad = new_ad[features]  # Ensure same column order
+    X_new_preprocessed = preprocessor.transform(new_ad)
 
     # Convert to list and send to SageMaker
-    data_to_predict = new_ad.values.tolist()
+    data_to_predict = X_new_preprocessed.values.tolist()
     response = predictor.predict(data_to_predict)
 
     # Decode response
