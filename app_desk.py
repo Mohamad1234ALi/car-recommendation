@@ -32,16 +32,6 @@ def read_csv_from_url(url):
     """Read a CSV file from a public S3 URL into a Pandas DataFrame."""
     return pd.read_csv(url)
 
-url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/model/preprocessor.pkl"
-
-def load_preprocessor_from_url(url):
-    """Download and load the preprocessor from a public S3 URL."""
-    response = requests.get(url)
-    response.raise_for_status()  # Raise an error for bad responses
-    preprocessor = joblib.load(io.BytesIO(response.content))
-    print("✅ Preprocessor loaded successfully from URL")
-    return preprocessor
-
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 # Manually set AWS credentials
@@ -63,10 +53,11 @@ category_encoder.fit(["OffRoad", "Van", "Limousine", "Estate Car", "Small car", 
 gearbox_encoder.fit(["Manual", "Automatic"])
 fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 
+
 # StandardScaler (Use the same mean & scale as in training)
-# scaler = StandardScaler()
-# Load preprocessor
-preprocessor = load_preprocessor_from_url(url)
+scaler = StandardScaler()
+scaler.mean_ = np.array([20000, 60000, 120, 2015])
+scaler.scale_ = np.array([5000, 20000, 50, 5])
 # Streamlit UI
 st.title("Car Recommendation System")
 
@@ -101,13 +92,10 @@ if st.button("Get Recommendation"):
 
     # Standardize numerical values
     numerical_features = ["Price", "Mileage", "Performance", "FirstReg"]
-    categorical_features = ["Category", "Gearbox", "FuelTyp"]
-    features = categorical_features + numerical_features
-    new_ad = new_ad[features]  # Ensure same column order
-    X_new_preprocessed = preprocessor.transform(new_ad)
+    new_ad[numerical_features] = scaler.transform(new_ad[numerical_features])
 
     # Convert to list and send to SageMaker
-    data_to_predict = X_new_preprocessed.values.tolist()
+    data_to_predict = new_ad.values.tolist()
     response = predictor.predict(data_to_predict)
 
     # Decode response
