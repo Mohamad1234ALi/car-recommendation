@@ -52,8 +52,6 @@ fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 
 # StandardScaler (Use the same mean & scale as in training)
 scaler = StandardScaler()
-scaler.mean_ = np.array([20000, 60000, 120, 2015])
-scaler.scale_ = np.array([5000, 20000, 50, 5])
 
 # Streamlit UI
 st.title("Car Recommendation System")
