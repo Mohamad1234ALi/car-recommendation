@@ -1,6 +1,7 @@
 import streamlit as st
 import boto3
 import json
+import joblib
 import pandas as pd
 import numpy as np
 from sagemaker.predictor import Predictor
