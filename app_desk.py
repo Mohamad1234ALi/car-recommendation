@@ -11,6 +11,7 @@ from sagemaker.session import Session
 from io import StringIO
 import os
 import requests
+import io
 
 aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
 aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
