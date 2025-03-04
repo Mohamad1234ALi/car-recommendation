@@ -28,7 +28,19 @@ def read_csv_from_s3(bucket_name, file_key):
 def read_csv_from_url(url):
     """Read a CSV file from a public S3 URL into a Pandas DataFrame."""
     return pd.read_csv(url)
-    
+
+def load_preprocessor():
+    """Load ColumnTransformer (scaler + encoder) from S3."""
+    s3 = boto3.client("s3")
+    bucket_name = "car-recommendation-raed"
+    s3_key = "model/preprocessor.pkl"
+
+    obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
+    preprocessor = joblib.load(obj["Body"])
+    print("✅ Preprocessor loaded successfully from S3")
+    return preprocessor
+
+
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 # Manually set AWS credentials
@@ -51,8 +63,9 @@ gearbox_encoder.fit(["Manual", "Automatic"])
 fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 
 # StandardScaler (Use the same mean & scale as in training)
-scaler = StandardScaler()
-
+# scaler = StandardScaler()
+# Load preprocessor
+preprocessor = load_preprocessor()
 # Streamlit UI
 st.title("Car Recommendation System")
 
@@ -87,7 +100,7 @@ if st.button("Get Recommendation"):
 
     # Standardize numerical values
     numerical_features = ["Price", "Mileage", "Performance", "FirstReg"]
-    new_ad[numerical_features] = scaler.transform(new_ad[numerical_features])
+    new_ad[numerical_features] = preprocessor.transform(new_ad[numerical_features])
 
     # Convert to list and send to SageMaker
     data_to_predict = new_ad.values.tolist()
