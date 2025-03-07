@@ -32,7 +32,19 @@ def load_scaler(url: str):
     except Exception as e:
         st.error(f"Failed to load scaler: {e}")
         return None
-    
+
+
+@st.cache_resource
+def load_pca(url: str):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        pca = joblib.load(BytesIO(response.content))  
+        return pca
+    except Exception as e:
+        st.error(f"Failed to load PCA model: {e}")
+        return None
+
 # AWS SageMaker Endpoint
 ENDPOINT_NAME = "CarRecommendationEndpointMoeThree3"
 
@@ -59,6 +71,11 @@ fueltype_encoder.fit(["Petrol", "Diesel", "Electric", "Hybrid"])
 # Initialize StandardScaler
 scaler_url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/model/scaler.pkl"
 scaler = load_scaler(scaler_url)
+
+
+# Load PCA model from S3
+pca_url = "https://car-recommendation-raed.s3.us-east-1.amazonaws.com/model/pca.pkl"
+pca = load_pca(pca_url)
 
 # Streamlit UI
 st.title("Car Recommendation System")
@@ -94,8 +111,18 @@ if st.button("Get Recommendation"):
     new_ad["FuelTyp"] = fueltype_encoder.transform(new_ad["FuelTyp"])
     
     new_ad[numerical_features] = scaler.transform(new_ad[numerical_features])
+
+     # Apply PCA before making predictions
+    if pca is not None:
+        new_ad_pca = pca.transform(new_ad)
+    else:
+        st.error("❌ PCA model not loaded.")
+        st.stop()
+
+    # Convert to list for SageMaker inference
+    data_to_predict = new_ad_pca.tolist()
     
-    data_to_predict = new_ad.values.tolist()
+    # data_to_predict = new_ad.values.tolist()
     response = predictor.predict(data_to_predict)
     response = response.decode("utf-8") if isinstance(response, bytes) else response
     
